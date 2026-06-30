@@ -44,8 +44,8 @@ export async function signUp(params: SignUpParams) {
 
     const { data: existingProfile, error: profileError } = await supabase
       .from("profiles")
-      .select("id, phone, email")
-      .or(`phone.eq.${normalizedPhone},email.eq.${email}`)
+      .select("id, email")
+      .eq("email", email)
       .limit(1)
       .single();
 
@@ -54,13 +54,7 @@ export async function signUp(params: SignUpParams) {
     }
 
     if (existingProfile) {
-      if (existingProfile.phone === normalizedPhone) {
-        return { success: false, error: "Já existe uma conta cadastrada com este número de telefone." };
-      }
-      if (existingProfile.email?.toLowerCase() === email) {
-        return { success: false, error: "Já existe uma conta cadastrada com este e-mail." };
-      }
-      return { success: false, error: "Já existe uma conta cadastrada com este e-mail ou telefone." };
+      return { success: false, error: "Já existe uma conta cadastrada com este e-mail." };
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -81,11 +75,7 @@ export async function signUp(params: SignUpParams) {
       const { error: profileError } = await supabase.from("profiles").insert({
         id: data.user.id,
         email: params.email,
-        phone: normalizedPhone,
-        company_name: params.companyName,
-        full_name: params.fullName,
-        plan: "free",
-        trial_ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+
         created_at: new Date().toISOString(),
       });
 
