@@ -23,7 +23,6 @@ export function LocalboostLanding() {
             <p className="max-w-2xl text-lg text-slate-300">LocalBoost ajuda restaurantes, clínicas, lojas e prestadores de serviços a converter conversas em vendas com automações inteligentes, atendimento 24/7 e painéis executivos.</p>
             <div className="flex flex-wrap gap-3">
               <Link href="/register" className="rounded-full bg-cyan-500 px-6 py-3 font-semibold text-slate-950">Começar agora</Link>
-              <Link href="/dashboard" className="rounded-full border border-slate-700 px-6 py-3 font-semibold">Ver painel demo</Link>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {heroStats.map((stat) => (

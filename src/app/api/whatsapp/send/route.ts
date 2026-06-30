@@ -1,13 +1,34 @@
 import { NextResponse } from "next/server";
 import { appendWebhookMessage, getWahaSessionByUser } from "@/lib/waha";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const userId = body.userId ?? "demo-user";
+  const userId = body.userId;
+
+  if (!userId) {
+    return NextResponse.json(
+      { ok: false, message: "userId é obrigatório" },
+      { status: 400 }
+    );
+  }
+
+  // Verify user is authenticated
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user || user.id !== userId) {
+    return NextResponse.json(
+      { ok: false, message: "Não autorizado" },
+      { status: 401 }
+    );
+  }
+
   const session = getWahaSessionByUser(userId);
 
   if (!session || session.status !== "connected") {
-    return NextResponse.json({ ok: false, message: "A sessão WAHA ainda não está conectada." }, { status: 409 });
+    return NextResponse.json(
+      { ok: false, message: "A sessão WAHA ainda não está conectada." },
+      { status: 409 }
+    );
   }
 
   const payload = {

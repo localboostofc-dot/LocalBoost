@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/auth";
 
 const navItems = [
   { href: "/dashboard", label: "Overview" },
@@ -15,8 +18,46 @@ const navItems = [
   { href: "/dashboard/admin", label: "Admin" },
 ];
 
+interface UserProfile {
+  plan: string;
+  company_name: string;
+}
+
 export function AppShell({ children, title }: { children: ReactNode; title: string }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  async function loadUserProfile() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan, company_name")
+        .eq("id", user.id)
+        .single();
+
+      if (data) setUserProfile(data);
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleLogout = async () => {
+    const result = await signOut();
+    if (result.success) {
+      router.push("/");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -37,11 +78,22 @@ export function AppShell({ children, title }: { children: ReactNode; title: stri
             })}
           </nav>
           <div className="mt-8 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-400">
-            <p className="font-semibold text-white">Plano ativo</p>
-            <p className="mt-1">Pro · R$ 97/mês</p>
-            <p className="mt-2 text-xs">Trial gratuito ativo por 7 dias</p>
+            <p className="font-semibold text-white">
+              {loading ? "Carregando..." : (userProfile?.company_name || "Seu negócio")}
+            </p>
+            {!loading && userProfile && (
+              <>
+                <p className="mt-1 capitalize">{userProfile.plan} · R$ {userProfile.plan === "free" ? "0" : userProfile.plan === "starter" ? "27" : userProfile.plan === "pro" ? "97" : "247"}/mês</p>
+                <p className="mt-2 text-xs">Acesso completo à plataforma</p>
+              </>
+            )}
           </div>
-          <Link href="/" className="mt-6 inline-flex text-sm text-slate-400 hover:text-white">Sair da conta</Link>
+          <button
+            onClick={handleLogout}
+            className="mt-6 inline-flex text-sm text-slate-400 hover:text-white"
+          >
+            Sair da conta
+          </button>
         </aside>
         <main className="flex-1 p-5 lg:p-8">
           <div className="mb-6 flex items-center justify-between">
