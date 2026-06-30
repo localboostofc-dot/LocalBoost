@@ -1,8 +1,12 @@
 "use client";
 
 import { AppShell } from "@/components/dashboard/AppShell";
-import { plans } from "@/lib/constants";
+import { plans, Plan, PlanKey } from "@/lib/constants";
 import { StripeButton } from "@/components/StripeButton";
+
+function isPaidPlan(plan: Plan): plan is Plan & { id: Exclude<PlanKey, "free"> } {
+  return plan.id !== "free";
+}
 
 export default function BillingPage() {
   return (
@@ -14,7 +18,7 @@ export default function BillingPage() {
             Escolha o plano Starter para continuar usando o LocalBoost após o período de avaliação.
           </p>
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            {plans.filter((plan) => plan.id !== "free").map((plan) => (
+            {plans.filter(isPaidPlan).map((plan) => (
               <div key={plan.id} className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
                 <p className="font-semibold">{plan.name}</p>
                 <p className="mt-2 text-sm text-slate-400">{plan.description}</p>
