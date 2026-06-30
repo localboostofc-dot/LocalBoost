@@ -79,7 +79,8 @@ export async function POST(request: Request) {
         const userId = (customer as Stripe.Customer).metadata?.userId;
 
         if (userId) {
-          const plan = getPlanFromPriceId(subscription.items.data[0].price.id);
+          const plan = getPlanFromPriceId(subscription.items.data[0]?.price.id ?? "");
+          const currentPeriodEnd = subscription.items.data[0]?.current_period_end ?? subscription.created;
 
           const { error } = await supabase
             .from("profiles")
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
               stripe_subscription_id: subscription.id,
               stripe_subscription_status: subscription.status,
               subscription_current_period_end: new Date(
-                subscription.current_period_end * 1000
+                currentPeriodEnd * 1000
               ).toISOString(),
             })
             .eq("id", userId);
@@ -108,7 +109,8 @@ export async function POST(request: Request) {
         const userId = (customer as Stripe.Customer).metadata?.userId;
 
         if (userId) {
-          const plan = getPlanFromPriceId(subscription.items.data[0].price.id);
+          const plan = getPlanFromPriceId(subscription.items.data[0]?.price.id ?? "");
+          const currentPeriodEnd = subscription.items.data[0]?.current_period_end ?? subscription.created;
 
           const { error } = await supabase
             .from("profiles")
@@ -116,7 +118,7 @@ export async function POST(request: Request) {
               plan,
               stripe_subscription_status: subscription.status,
               subscription_current_period_end: new Date(
-                subscription.current_period_end * 1000
+                currentPeriodEnd * 1000
               ).toISOString(),
             })
             .eq("id", userId);

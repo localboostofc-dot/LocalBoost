@@ -65,6 +65,9 @@ export default function AdminPage() {
         <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6">
           <h2 className="text-xl font-semibold">Gerenciar planos dos usuários</h2>
           <p className="mt-2 text-sm text-slate-400">
+            Admin principal: joaopedromoladeoliveira@gmail.com. Ele pode adicionar outros admins, mas não pode ser removido.
+          </p>
+          <p className="mt-2 text-sm text-slate-400">
             O admin pode definir o plano de cada usuário. Usuários com plano free terão o acesso bloqueado após 7 dias.
           </p>
 

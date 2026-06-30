@@ -28,3 +28,6 @@ npm run start
 - Integrar OpenAI com chave real
 - Configurar Stripe com Price IDs reais
 - Conectar WhatsApp Cloud API/WAHA com secrets do provedor
+## Admin principal
+- Admin principal: joaopedromoladeoliveira@gmail.com
+- Ele pode adicionar outros admins, mas não pode ser removido
