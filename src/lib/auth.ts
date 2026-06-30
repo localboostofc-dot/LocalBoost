@@ -42,50 +42,30 @@ export async function signUp(params: SignUpParams) {
       return { success: false, error: "Telefone inválido." };
     }
 
-    const { data: existingProfile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, email")
-      .eq("email", email)
-      .limit(1)
-      .single();
-
-    if (profileError && profileError.code !== "PGRST116") {
-      throw profileError;
-    }
-
-    if (existingProfile) {
-      return { success: false, error: "Já existe uma conta cadastrada com este e-mail." };
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: params.password,
-      options: {
-        data: {
-          company_name: params.companyName,
-          full_name: params.fullName,
-        },
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        email,
+        password: params.password,
+        phone: normalizedPhone,
+        companyName: params.companyName,
+        fullName: params.fullName,
+      }),
     });
 
-    if (error) throw error;
+    const result = await response.json();
 
-    // Create user profile in database
-    if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: data.user.id,
-        email: params.email,
-
-        created_at: new Date().toISOString(),
-      });
-
-      if (profileError) {
-        console.error("Profile creation error:", profileError);
-        return { success: false, error: "Erro ao criar perfil do usuário." };
-      }
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        error: result.error || "Erro ao criar conta",
+      };
     }
 
-    return { success: true, data };
+    return { success: true, data: result.data };
   } catch (error) {
     const err = error as any;
     return {

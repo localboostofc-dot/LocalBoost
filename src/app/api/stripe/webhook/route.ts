@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseAdminClient, supabase } from "@/lib/supabase";
 
 let stripeClient: Stripe | null = null;
 
@@ -40,6 +40,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "Invalid signature" }, { status: 400 });
   }
 
+  const adminClient = createSupabaseAdminClient();
+  const profileClient = adminClient ?? supabase;
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {
@@ -55,7 +58,7 @@ export async function POST(request: Request) {
           const plan = planId || "starter";
 
           // Update user plan in database
-          const { error } = await supabase
+          const { error } = await profileClient
             .from("profiles")
             .update({
               plan,
@@ -82,7 +85,7 @@ export async function POST(request: Request) {
           const plan = getPlanFromPriceId(subscription.items.data[0]?.price.id ?? "");
           const currentPeriodEnd = subscription.items.data[0]?.current_period_end ?? subscription.created;
 
-          const { error } = await supabase
+          const { error } = await profileClient
             .from("profiles")
             .update({
               plan,
@@ -112,7 +115,7 @@ export async function POST(request: Request) {
           const plan = getPlanFromPriceId(subscription.items.data[0]?.price.id ?? "");
           const currentPeriodEnd = subscription.items.data[0]?.current_period_end ?? subscription.created;
 
-          const { error } = await supabase
+          const { error } = await profileClient
             .from("profiles")
             .update({
               plan,
@@ -138,7 +141,7 @@ export async function POST(request: Request) {
         const userId = (customer as Stripe.Customer).metadata?.userId;
 
         if (userId) {
-          const { error } = await supabase
+          const { error } = await profileClient
             .from("profiles")
             .update({
               plan: "free",

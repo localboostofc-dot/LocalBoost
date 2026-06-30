@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseAdminClient, supabase } from "@/lib/supabase";
 
 let stripeClient: Stripe | null = null;
 
@@ -34,9 +34,12 @@ export async function POST(request: Request) {
       );
     }
 
+    const adminClient = createSupabaseAdminClient();
+    const profileClient = adminClient ?? supabase;
+
     // Get or create Stripe customer
     let customerId: string;
-    const { data: profile } = await supabase
+    const { data: profile } = await profileClient
       .from("profiles")
       .select("stripe_customer_id, email")
       .eq("id", userId)
@@ -55,7 +58,7 @@ export async function POST(request: Request) {
       customerId = customer.id;
 
       // Update profile with Stripe customer ID
-      await supabase
+      await profileClient
         .from("profiles")
         .update({ stripe_customer_id: customerId })
         .eq("id", userId);
