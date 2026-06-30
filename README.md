@@ -29,5 +29,5 @@ npm run start
 - Configurar Stripe com Price IDs reais
 - Conectar WhatsApp Cloud API/WAHA com secrets do provedor
 ## Admin principal
-Admin principal: João Pedro Codognoto Ele pode adicionar outros admins, mas não pode ser removido
-Parcerias via Whatsapp +55 (14) 99748-3168 ou +55 (14) 99789-3879
+- Admin principal: joaopedromoladeoliveira@gmail.com
+- Ele pode adicionar outros admins, mas não pode ser removido
